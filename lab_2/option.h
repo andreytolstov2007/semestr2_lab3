@@ -7,17 +7,47 @@ template <typename T>
 class Option {
 private:
     bool has_value;
-    T value;
+    union {
+        T value;
+    };
 
-public:
-    Option() { has_value = false; }
-    
-    explicit Option(const T &val) {
-        has_value = true;
-        value = val;
+    void destroy_value() {
+        if (has_value) {
+            value.~T();
+        }
     }
     
-    bool Is_some() const {  return has_value; }
+    void copy_value(const T& other) {
+        new (&value) T(other);
+    }
+
+public:
+    Option() : has_value(false) {}
+    
+    explicit Option(const T& val) : has_value(true) {
+        new (&value) T(val);
+    }
+
+    Option(const Option& other) : has_value(other.has_value) {
+        if (has_value) {
+            copy_value(other.value);
+        }
+    }
+
+    ~Option() { destroy_value(); }
+
+    Option& operator=(const Option& other) {
+        if (this != &other) {
+            destroy_value();
+            has_value = other.has_value;
+            if (has_value) {
+                copy_value(other.value);
+            }
+        }
+        return *this;
+    }
+
+    bool Is_some() const { return has_value; }
 
     bool Is_none() const { 
         if (has_value == true) {
