@@ -7,9 +7,7 @@ template <typename T>
 class Option {
 private:
     bool has_value;
-    union {
-        T value;
-    };
+    union { T value; };
 
     void destroy_value() {
         if (has_value) {
@@ -17,18 +15,18 @@ private:
         }
     }
     
-    void copy_value(const T& other) {
+    void copy_value(const T &other) {
         new (&value) T(other);
     }
 
 public:
     Option() : has_value(false) {}
     
-    explicit Option(const T& val) : has_value(true) {
+    explicit Option(const T &val) : has_value(true) {
         new (&value) T(val);
     }
 
-    Option(const Option& other) : has_value(other.has_value) {
+    Option(const Option &other) : has_value(other.has_value) {
         if (has_value) {
             copy_value(other.value);
         }
@@ -36,7 +34,7 @@ public:
 
     ~Option() { destroy_value(); }
 
-    Option& operator=(const Option& other) {
+    Option& operator=(const Option &other) {
         if (this != &other) {
             destroy_value();
             has_value = other.has_value;
