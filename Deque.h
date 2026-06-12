@@ -4,21 +4,6 @@
 #include "lab_2/Errors.h"
 #include "lab_2/IEnumerator.h"
 
-#define FIND_NODE_BY_INDEX(current_element, list_index) \
-    Node *current_element; \
-    if ((list_index) < (list_length / 2)) { \
-        current_element = top; \
-        for (long counter = 0; counter < (list_index); counter ++) { \
-            current_element = current_element -> next; \
-        } \
-    } \
-    else { \
-        current_element = low; \
-        for (long counter = (list_length - 1); counter > (list_index); counter --) { \
-            current_element = current_element -> prev; \
-        } \
-    }
-
 template <typename T>
 class LinkedList {
 public:
@@ -140,21 +125,21 @@ public:
     T Get_list_index(long list_index) const {
         if ((list_index < 0) || (list_index >= list_length)) { throw IndexOutOfRange(); }
 
-        FIND_NODE_BY_INDEX(current_element, list_index);
+        Node *current_element = Find_node_by_index(list_index);
         return current_element -> data;
     }
 
     T& operator[](long list_index) {
         if ((list_index < 0) || (list_index >= list_length)) { throw IndexOutOfRange(); }
 
-        FIND_NODE_BY_INDEX(current_element, list_index);
+        Node *current_element = Find_node_by_index(list_index);
         return current_element -> data;
     }
 
     const T& operator[](long list_index) const {
         if ((list_index < 0) || (list_index >= list_length)) { throw IndexOutOfRange(); }
         
-        FIND_NODE_BY_INDEX(current_element, list_index);
+        Node *current_element = Find_node_by_index(list_index);
         return current_element -> data;
     }
 
@@ -163,7 +148,7 @@ public:
         if (start_index > end_index) { throw IndexesTranslated(); }
 
         LinkedList<T> sub_list;
-        FIND_NODE_BY_INDEX(current_element, start_index);
+        Node *current_element = Find_node_by_index(start_index);
         for (long counter = start_index; counter <= end_index; counter ++) {
             sub_list.Append(current_element -> data);
             current_element = current_element -> next;
@@ -177,7 +162,7 @@ public:
         if (list_index == 0) { Prepend(item); }
         else if (list_index == list_length) { Append(item); }
         else {
-            FIND_NODE_BY_INDEX(current_element, list_index - 1);
+            Node *current_element = Find_node_by_index(list_index - 1);
 
             Node *new_node = new Node();
             new_node -> data = item;
@@ -255,5 +240,22 @@ private:
     Node *top;
     Node *low;
     long list_length;
+
+    Node* Find_node_by_index(long list_index) const {
+        Node *current_element;
+        if (list_index < (list_length / 2)) {
+            current_element = top;
+            for (long counter = 0; counter < list_index; counter ++) {
+                current_element = current_element -> next;
+            }
+        }
+        else {
+            current_element = low;
+            for (long counter = (list_length - 1); counter > list_index; counter --) {
+                current_element = current_element -> prev;
+            }
+        }
+        return current_element;
+    }
 };
 #endif //LinkedList_H
